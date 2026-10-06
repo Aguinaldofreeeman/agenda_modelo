@@ -8,9 +8,9 @@
    - NUNCA utilize a "service_role" no frontend.
    ============================================================ */
 
-const SUPABASE_URL = 'cole a url do seu projeto aqui entre as aspas';
+const SUPABASE_URL = 'https://vazmicsysywjpzdzyabq.supabase.co/rest/v1/';
 
-const SUPABASE_ANON_KEY = 'cole a anon key do seu projeto aqui entre as aspas';
+const SUPABASE_ANON_KEY = 'sb_publishable_Nzyk6NSRey0oS1kyxL-L1g_YBoCK1Sw';
 
 // O objeto global `supabase` vem do script carregado via CDN
 // no index.html.
