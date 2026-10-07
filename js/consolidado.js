@@ -15,7 +15,8 @@ const Consolidado = {
         const container = document.getElementById('view-consolidado');
         Consolidado.semanaAtual = App.inicioDaSemana(new Date());
 
-        const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+        //const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+       const cidades = [...new Set(App.state.locais.map(l => l.cidade.trim()))].sort();
 
         container.innerHTML = `
             <div class="view-cabecalho">
