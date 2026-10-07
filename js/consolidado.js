@@ -5,6 +5,11 @@
    data e local já preenchidos.
    Clique num compromisso → abre modal de Detalhes.
    ============================================================ */
+const limparTexto = (str) => str ? str.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim() : '';
+
+if (filtroCidade && limparTexto(l.cidade) !== filtroCidade) {
+    return false;
+}
 
 const Consolidado = {
     semanaAtual: null,
