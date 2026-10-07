@@ -103,12 +103,13 @@ const Relatorios = {
     async renderGeral() {
         const container = document.getElementById('view-relatorio-geral');
         const { data: usuarios } = await supabaseClient.from('usuarios').select('id, nome').order('nome');
-   const cidades = [...new Set(
+   
+       const cidades = [...new Set(
     App.state.locais
-        .map(l => l.cidade ? l.cidade.normalize('NFC').replace(/\s+/g, ' ').trim() : '')
+        .map(l => l.cidade ? l.cidade.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim() : '')
         .filter(Boolean)
 )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
-       //const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+
    
 
         container.innerHTML = `
