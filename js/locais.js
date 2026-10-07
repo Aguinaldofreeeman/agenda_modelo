@@ -96,7 +96,8 @@ const Locais = {
                                 </div>
                                 <div class="campo">
                                     <label for="loc-cidade">Cidade</label>
-                                    <input type="text" id="loc-cidade" required>
+                                    <input type="text" id="loc-cidade" list="loc-cidades-lista" autocomplete="off" required>
+                                    <datalist id="loc-cidades-lista"></datalist>
                                 </div>
                                 <label class="chk-linha">
                                     <input type="checkbox" id="loc-ativo">
@@ -122,6 +123,16 @@ const Locais = {
                 document.body.appendChild(modal);
             }
             console.log('[Locais] modal-local criado dinamicamente.');
+        }
+
+        // Garante o <datalist> de sugestões de cidade (modal estático do index.html não o tem)
+        const inputCidade = document.getElementById('loc-cidade');
+        if (inputCidade && !document.getElementById('loc-cidades-lista')) {
+            const dl = document.createElement('datalist');
+            dl.id = 'loc-cidades-lista';
+            inputCidade.insertAdjacentElement('afterend', dl);
+            inputCidade.setAttribute('list', 'loc-cidades-lista');
+            inputCidade.setAttribute('autocomplete', 'off');
         }
 
         // Anexa listeners (o DOMContentLoaded original não terá rodado se o modal foi criado agora)
@@ -163,7 +174,15 @@ const Locais = {
             document.getElementById('loc-ativo').checked = true;
         }
 
+        Locais.atualizarSugestoesCidade();
         App.abrirModal('modal-local');
+    },
+
+    atualizarSugestoesCidade() {
+        const dl = document.getElementById('loc-cidades-lista');
+        if (!dl) return;
+        dl.innerHTML = App.listaCidades(Locais._cache || [])
+            .map(c => `<option value="${App.escapeHTML(c)}"></option>`).join('');
     },
 
     async salvar(e) {
@@ -173,11 +192,26 @@ const Locais = {
         btn.disabled = true;
         btn.textContent = 'Salvando...';
 
+        // Normaliza: tira espaços extras e reaproveita a grafia de uma cidade já cadastrada
+        // (evita "Sao Paulo" x "São Paulo" x "sao paulo")
+        const cache = Locais._cache || [];
         const payload = {
-            nome: document.getElementById('loc-nome').value.trim(),
-            cidade: document.getElementById('loc-cidade').value.trim(),
+            nome: App.limparTexto(document.getElementById('loc-nome').value),
+            cidade: App.cidadeCanonica(document.getElementById('loc-cidade').value, cache),
             ativo: document.getElementById('loc-ativo').checked,
         };
+
+        // Bloqueia duplicata nome+cidade ignorando acento/caixa (o índice único do banco é sensível a isso)
+        const duplicado = cache.some(l =>
+            String(l.id) !== String(id) &&
+            App.chaveTexto(l.nome) === App.chaveTexto(payload.nome) &&
+            App.chaveTexto(l.cidade) === App.chaveTexto(payload.cidade));
+        if (duplicado) {
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
+            App.toast('Já existe um local com esse nome nesta cidade.', 'erro');
+            return;
+        }
 
         let error;
         if (id) {

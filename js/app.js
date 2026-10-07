@@ -229,10 +229,42 @@ const App = {
         return `${dia}/${mes}`;
     },
 
+    // Escapa também aspas, para uso seguro dentro de atributos (value="...")
     escapeHTML(str) {
         const div = document.createElement('div');
         div.textContent = str ?? '';
-        return div.innerHTML;
+        return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    },
+
+    // Chave de comparação: sem acento, sem espaços extras, minúscula.
+    // "  São  Paulo " e "sao paulo" => "sao paulo"
+    chaveTexto(str) {
+        return (str ?? '').toString().trim().replace(/\s+/g, ' ')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    },
+
+    // Remove espaços sobrando, preservando a grafia digitada
+    limparTexto(str) {
+        return (str ?? '').toString().trim().replace(/\s+/g, ' ');
+    },
+
+    // Lista de cidades únicas (ignora acento/caixa/espaços), ordenada em pt-BR.
+    // Mantém a primeira grafia encontrada para exibição.
+    listaCidades(locais) {
+        const mapa = new Map();
+        (locais || []).forEach(l => {
+            const k = App.chaveTexto(l.cidade);
+            if (k && !mapa.has(k)) mapa.set(k, App.limparTexto(l.cidade));
+        });
+        return [...mapa.values()].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    },
+
+    // Se a cidade digitada já existe (mesmo com grafia diferente), devolve a grafia existente
+    cidadeCanonica(texto, locais) {
+        const k = App.chaveTexto(texto);
+        const achada = (locais || []).find(l => App.chaveTexto(l.cidade) === k);
+        return achada ? App.limparTexto(achada.cidade) : App.limparTexto(texto);
     },
 
     // Aceita string OU array e devolve rótulo legível:

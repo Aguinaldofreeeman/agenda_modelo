@@ -15,7 +15,7 @@ const Consolidado = {
         const container = document.getElementById('view-consolidado');
         Consolidado.semanaAtual = App.inicioDaSemana(new Date());
 
-        const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+        const cidades = App.listaCidades(App.state.locais);
 
         container.innerHTML = `
             <div class="view-cabecalho">
@@ -180,7 +180,7 @@ const Consolidado = {
         }
 
         let agendamentos = data || [];
-        if (filtroCidade) agendamentos = agendamentos.filter(a => a.locais?.cidade === filtroCidade);
+        if (filtroCidade) agendamentos = agendamentos.filter(a => App.chaveTexto(a.locais?.cidade) === App.chaveTexto(filtroCidade));
 
         agendamentos.forEach(a => {
             a.usuarios = { nome: Consolidado.usuariosMap[a.usuario_id] || '—' };
@@ -191,7 +191,7 @@ const Consolidado = {
 
         let localidades = App.state.locais;
         if (filtroLocal) localidades = localidades.filter(l => String(l.id) === String(filtroLocal));
-        if (filtroCidade) localidades = localidades.filter(l => l.cidade === filtroCidade);
+        if (filtroCidade) localidades = localidades.filter(l => App.chaveTexto(l.cidade) === App.chaveTexto(filtroCidade));
 
         matrizEl.innerHTML = Consolidado.montarTabela(localidades, dias, agendamentos);
 

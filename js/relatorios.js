@@ -103,7 +103,7 @@ const Relatorios = {
     async renderGeral() {
         const container = document.getElementById('view-relatorio-geral');
         const { data: usuarios } = await supabaseClient.from('usuarios').select('id, nome').order('nome');
-        const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+        const cidades = App.listaCidades(App.state.locais);
 
         container.innerHTML = `
             <div class="view-cabecalho">
@@ -196,7 +196,7 @@ const Relatorios = {
         const { data, error } = await query;
         let registros = data || [];
 
-        if (cidade) registros = registros.filter(r => r.locais?.cidade === cidade);
+        if (cidade) registros = registros.filter(r => App.chaveTexto(r.locais?.cidade) === App.chaveTexto(cidade));
         if (funcao) registros = registros.filter(r => String(r.usuarios?.funcao_id) === String(funcao));
 
         const total = registros.length;
