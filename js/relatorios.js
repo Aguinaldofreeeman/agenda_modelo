@@ -103,7 +103,8 @@ const Relatorios = {
     async renderGeral() {
         const container = document.getElementById('view-relatorio-geral');
         const { data: usuarios } = await supabaseClient.from('usuarios').select('id, nome').order('nome');
-        const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+        //const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+       const cidades = [...new Set(App.state.locais.map(l => l.cidade.trim()))].sort();
 
         container.innerHTML = `
             <div class="view-cabecalho">
