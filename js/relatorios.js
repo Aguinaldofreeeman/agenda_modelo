@@ -7,9 +7,7 @@
 // Função auxiliar de limpeza (pode colocar no início da função de filtro)
 const limparTexto = (str) => str ? str.replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim() : '';
 
-// Na condição do filtro por cidade:
-if (filtroCidade && limparTexto(l.cidade) !== filtroCidade) {
-    return false;
+
 }
 
 const Relatorios = {
