@@ -15,8 +15,13 @@ const Consolidado = {
         const container = document.getElementById('view-consolidado');
         Consolidado.semanaAtual = App.inicioDaSemana(new Date());
 
-        //const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
-       const cidades = [...new Set(App.state.locais.map(l => l.cidade.trim()))].sort();
+      const cidades = [...new Set(
+    App.state.locais
+        .map(l => l.cidade ? l.cidade.normalize('NFC').replace(/\s+/g, ' ').trim() : '')
+        .filter(Boolean)
+)].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+       //const cidades = [...new Set(App.state.locais.map(l => l.cidade))].sort();
+     
 
         container.innerHTML = `
             <div class="view-cabecalho">
