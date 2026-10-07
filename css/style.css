@@ -10,19 +10,21 @@
    ============================================================ */
 
 :root {
-    --cor-primaria: #1F3A5F;
-    --cor-primaria-escura: #16293F;
-    --cor-primaria-clara: #2C4E7C;
-    --cor-fundo: #F4F5F2;
+    --cor-primaria: #0F766E;
+    --cor-primaria-escura: #0A3F3C;
+    --cor-primaria-clara: #14958B;
+    --cor-fundo: #F1F7F6;
     --cor-superficie: #FFFFFF;
     --cor-texto: #1B2430;
     --cor-texto-suave: #5B6572;
     --cor-borda: #E1E4E4;
-    --cor-planejado: #B5540A;
-    --cor-planejado-fundo: #FBE8D8;
-    --cor-concluido: #1D5FA6;
-    --cor-concluido-fundo: #DBE8F6;
-    --cor-acento: #B98A2E;
+    --cor-planejado: #D97706;
+    --cor-planejado-fundo: #FEF3C7;
+    --cor-planejado-texto: #92400E;
+    --cor-concluido: #2563EB;   
+   --cor-concluido-fundo: #DBEAFE;
+    --cor-concluido-texto: #1E40AF;
+    --cor-acento: #F59E0B;
     --cor-erro: #B3261E;
     --cor-erro-fundo: #FBE3E1;
     --raio: 10px;
@@ -758,3 +760,43 @@ textarea { resize: vertical; min-height: 80px; }
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
 }
+
+
+/* ---- Cores de texto dos status seguem a paleta ---- */
+.compromisso-planejado,
+.evento-cal-planejado .evento-cal-caixa { color: var(--cor-planejado-texto); }
+.compromisso-concluido,
+.evento-cal-concluido .evento-cal-caixa { color: var(--cor-concluido-texto); }
+
+.evento-cal-planejado:hover .evento-cal-caixa { background: color-mix(in srgb, var(--cor-planejado) 22%, white); }
+.evento-cal-concluido:hover .evento-cal-caixa { background: color-mix(in srgb, var(--cor-concluido) 22%, white); }
+.tabela-matriz td.celula-dia:hover { background: color-mix(in srgb, var(--cor-primaria) 7%, white); }
+
+/* ---- Menu lateral com gradiente e destaque no item ativo ---- */
+#menu-lateral {
+    background: linear-gradient(180deg, var(--cor-primaria-escura) 0%, var(--cor-primaria) 160%);
+}
+.menu-item.ativo {
+    background: rgba(255,255,255,.16);
+    box-shadow: inset 3px 0 0 var(--cor-acento);
+}
+
+/* ---- Cards do início com faixa colorida ---- */
+.card-indicador {
+    border-top: 3px solid var(--cor-primaria-clara);
+    transition: transform .15s, box-shadow .15s;
+}
+.card-indicador:hover { transform: translateY(-2px); box-shadow: var(--sombra); }
+.cards-grid .card-indicador:nth-child(2) { border-top-color: var(--cor-planejado); }
+.cards-grid .card-indicador:nth-child(3) { border-top-color: var(--cor-concluido); }
+.cards-grid .card-indicador:nth-child(4) { border-top-color: var(--cor-acento); }
+.cards-grid .card-indicador:nth-child(5) { border-top-color: var(--cor-primaria); }
+.card-valor { color: var(--cor-primaria); }
+
+/* ---- Cabeçalho e botão principal ---- */
+#cabecalho { border-bottom: 2px solid color-mix(in srgb, var(--cor-primaria) 12%, white); }
+.btn-primario { box-shadow: 0 2px 6px color-mix(in srgb, var(--cor-primaria) 35%, transparent); }
+
+/* ---- Tabelas: cabeçalho com leve tom da marca ---- */
+.tabela thead th { background: color-mix(in srgb, var(--cor-primaria) 6%, white); color: var(--cor-primaria); }
+.tabela tbody tr:hover { background: color-mix(in srgb, var(--cor-primaria) 4%, white); }
