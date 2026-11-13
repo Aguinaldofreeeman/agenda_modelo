@@ -118,7 +118,7 @@ const Calendario = {
     async buscarEventos() {
         let query = supabaseClient
             .from('agendamentos')
-            .select('id, data, periodo, status, objetivo, resumo, local_id, tarefa_id, usuario_id, locais(nome, cidade), tarefas(nome)');
+            .select('id, data, periodo, status, objetivo, resumo, local_id, local_outro, tarefa_id, usuario_id, locais(nome, cidade), tarefas(nome)');
 
         if (!App.state.isAdm) query = query.eq('usuario_id', App.state.perfil.id);
 
@@ -149,7 +149,7 @@ const Calendario = {
                     extendedProps: {
                         agendamentoId: a.id,
                         periodo: per,
-                        local: a.locais?.nome || '—',
+                        local: App.nomeLocal(a),
                         tarefa: a.tarefas?.nome || '—',
                         usuario: nomesExibicao[a.usuario_id] || '—',
                         status: a.status,
@@ -192,7 +192,7 @@ const Calendario = {
         return `
             <dl class="detalhes-lista">
                 ${App.state.isAdm ? `<dt>Usuário</dt><dd>${App.escapeHTML(a.usuarios?.nome || '—')}</dd>` : ''}
-                <dt>Local</dt><dd>${App.escapeHTML(a.locais?.nome || '—')}</dd>
+                <dt>Local</dt><dd>${App.escapeHTML(App.nomeLocal(a))}</dd>
                 <dt>Cidade</dt><dd>${App.escapeHTML(a.locais?.cidade || '—')}</dd>
                 <dt>Data</dt><dd>${App.formatarData(a.data)}</dd>
                 <dt>Período</dt><dd>${App.rotuloPeriodos(a.periodo)}</dd>

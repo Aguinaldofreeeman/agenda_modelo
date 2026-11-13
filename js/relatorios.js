@@ -58,7 +58,7 @@ const Relatorios = {
     async carregarIndividual() {
         let query = supabaseClient
             .from('agendamentos')
-            .select('id, data, periodo, status, objetivo, resumo, locais(nome, cidade), tarefas(nome)')
+            .select('id, data, periodo, status, objetivo, resumo, local_outro, locais(nome, cidade), tarefas(nome)')
             .eq('usuario_id', App.state.perfil.id)
             .order('data', { ascending: false });
 
@@ -81,7 +81,7 @@ const Relatorios = {
         const total = registros.length;
         const planejadas = registros.filter(r => r.status === 'planejado').length;
         const concluidas = registros.filter(r => r.status === 'concluido').length;
-        const localidades = new Set(registros.map(r => r.locais?.nome)).size;
+        const localidades = new Set(registros.map(r => App.nomeLocal(r))).size;
 
         document.getElementById('rel-totais').innerHTML = `
             <div class="card-indicador"><span class="card-valor">${total}</span><span class="card-label">Total de visitas</span></div>
@@ -174,7 +174,7 @@ const Relatorios = {
     async carregarGeral() {
         let query = supabaseClient
             .from('agendamentos')
-            .select('id, data, periodo, status, objetivo, resumo, usuario_id, usuarios(nome, funcao_id), locais(nome, cidade), tarefas(nome)')
+            .select('id, data, periodo, status, objetivo, resumo, local_outro, usuario_id, usuarios(nome, funcao_id), locais(nome, cidade), tarefas(nome)')
             .order('data', { ascending: false });
 
         const inicio = document.getElementById('relg-inicio').value;
@@ -249,7 +249,7 @@ const Relatorios = {
         switch (campo) {
             case 'data': return r.data;
             case 'usuario': return r.usuarios?.nome || '';
-            case 'local': return r.locais?.nome || '';
+            case 'local': return App.nomeLocal(r);
             case 'status': return r.status;
             default: return '';
         }
@@ -271,7 +271,7 @@ const Relatorios = {
                 linha['Função'] = funcao ? funcao.nome : '—';
             }
 
-            linha['Local'] = r.locais?.nome || '—';
+            linha['Local'] = App.nomeLocal(r);
             if (comUsuario) linha['Cidade'] = r.locais?.cidade || '—';
 
             linha['Período'] = App.periodoLabel[r.periodo] || r.periodo;
@@ -317,7 +317,7 @@ const Relatorios = {
                             <tr>
                                 <td>${App.formatarData(r.data)}</td>
                                 ${comUsuario ? `<td>${App.escapeHTML(r.usuarios?.nome || '—')}</td><td>${App.escapeHTML(App.state.funcoes.find(f => f.id === r.usuarios?.funcao_id)?.nome || '—')}</td>` : ''}
-                                <td>${App.escapeHTML(r.locais?.nome || '—')}</td>
+                                <td>${App.escapeHTML(App.nomeLocal(r))}</td>
                                 ${comUsuario ? `<td>${App.escapeHTML(r.locais?.cidade || '—')}</td>` : ''}
                                 <td>${App.periodoLabel[r.periodo]}</td>
                                 <td>${App.escapeHTML(r.tarefas?.nome || '—')}</td>

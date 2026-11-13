@@ -155,6 +155,10 @@ create table if not exists public.agendamentos (
 
     resumo text,
 
+    -- Local digitado pelo usuário quando o local escolhido é "Outros".
+    -- NULL em quase todos os agendamentos (a maioria usa um local do cadastro).
+    local_outro text,
+
     created_at timestamptz not null default now(),
 
     updated_at timestamptz not null default now(),
@@ -768,5 +772,35 @@ alter table public.agendamentos
 -- ============================================================
 -- Antes: periodo text not null, check in ('manha','tarde','noite')
 -- Agora: periodo text[] com 1..3 valores válidos
+-- ============================================================
+
+
+-- ============================================================
+-- 22. LOCAL PERSONALIZADO ("Outros")
+-- ============================================================
+-- Quando o local escolhido no agendamento é o local genérico
+-- "Outros", o usuário digita o local real da visita. Esse texto
+-- fica em public.agendamentos.local_outro (NULL nos demais).
+-- ============================================================
+
+-- 1) Cria a coluna (idempotente: pode rodar quantas vezes quiser)
+alter table public.agendamentos
+    add column if not exists local_outro text;
+
+-- 2) Limite de tamanho do texto digitado
+alter table public.agendamentos
+    drop constraint if exists agendamentos_local_outro_tamanho;
+
+alter table public.agendamentos
+    add constraint agendamentos_local_outro_tamanho
+    check (
+        local_outro is null
+        or length(btrim(local_outro)) between 1 and 160
+    );
+
+-- Observações:
+-- - Nenhuma policy nova é necessária: as policies de insert/update
+--   do agendamento já liberam a linha inteira (incluindo a nova coluna).
+-- - Registros antigos continuam válidos (local_outro = NULL).
 -- ============================================================
 

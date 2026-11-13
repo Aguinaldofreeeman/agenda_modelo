@@ -99,6 +99,11 @@ status. Cada linha abre o modal de edição (se o usuário tiver permissão).
 Ao editar, se a visita for **planejada** e o usuário tiver permissão,
 o botão **Excluir** aparece no rodapé do modal.
 
+**Local "Outros":** quando o local escolhido é o genérico **"Outros"**, o
+modal abre um campo extra **"Qual o local? *"** para o usuário digitar o
+local real da visita. O texto é gravado em `agendamentos.local_outro` e
+exibido nas telas como `Outros — Escola X`.
+
 ### 3. Calendário
 
 Integração com **FullCalendar 6**. Cores por status:
@@ -296,6 +301,7 @@ Cinco tabelas no schema `public`:
 | `status` | text NOT NULL | `'planejado'` ou `'concluido'` |
 | `objetivo` | text | opcional |
 | `resumo` | text | **obrigatório** se `status = 'concluido'` |
+| `local_outro` | text | local digitado pelo usuário quando o local escolhido é "Outros" (1–160 caracteres) |
 | `created_at` | timestamptz | |
 | `updated_at` | timestamptz | atualizado por trigger |
 
@@ -306,6 +312,9 @@ Cinco tabelas no schema `public`:
   itens estão em `{'manha','tarde','noite'}` — validado por
   `periodo <@ array['manha','tarde','noite'] and array_length(periodo, 1) >= 1`
 - `status` restrito a `'planejado'`, `'concluido'`
+- `local_outro` é `NULL` na maioria dos agendamentos (só é preenchido
+  quando o local escolhido é "Outros"); quando preenchido, precisa ter
+  entre 1 e 160 caracteres
 - Índice **GIN** em `periodo` para acelerar consultas `contains`
 
 ---
@@ -480,6 +489,12 @@ Cole o script SQL completo no **SQL Editor** e execute. Isso cria:
   `listar_usuarios_ativos`)
 - RLS + policies
 - Dados iniciais (funções, tarefas, locais de exemplo)
+
+> **Bancos já existentes:** as seções numeradas no fim do script
+> (`21`, `22`, ...) são migrações idempotentes. Basta rodar a seção
+> `22. LOCAL PERSONALIZADO ("Outros")` para adicionar a coluna
+> `agendamentos.local_outro` — é o que habilita o campo de texto do
+> local no modal de agendamento.
 
 ### 3. Configurar `js/supabase.js`
 
@@ -722,7 +737,9 @@ Acesse a URL, insira e-mail e senha cadastrados.
 
 1. **+ Nova visita**
 2. Preencha local, data, período(s) e tarefa, objetivo e status
-3. **Salvar**
+3. Se o local escolhido for **"Outros"**, preencha também o campo
+   **"Qual o local?"** com o local real da visita
+4. **Salvar**
 
 **Pelo Calendário:**
 

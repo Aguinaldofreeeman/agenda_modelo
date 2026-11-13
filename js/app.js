@@ -249,6 +249,24 @@ const App = {
         return (str ?? '').toString().trim().replace(/\s+/g, ' ');
     },
 
+    // Local "genérico": quando o local escolhido é "Outros", o local real
+    // da visita é digitado no campo de texto do agendamento.
+    // Aceita o objeto do local ou apenas o nome.
+    ehLocalOutros(local) {
+        const nome = (local && typeof local === 'object') ? local.nome : local;
+        return App.chaveTexto(nome) === 'outros';
+    },
+
+    // Nome do local para exibição. Quando o agendamento usa o local "Outros",
+    // mostra o texto digitado pelo usuário: "Outros — Escola X".
+    nomeLocal(agendamento) {
+        if (!agendamento) return '—';
+        const nome = agendamento.locais?.nome || '';
+        const digitado = App.limparTexto(agendamento.local_outro);
+        if (!digitado) return nome || '—';
+        return nome ? `${nome} — ${digitado}` : digitado;
+    },
+
     // Lista de cidades únicas (ignora acento/caixa/espaços), ordenada em pt-BR.
     // Mantém a primeira grafia encontrada para exibição.
     listaCidades(locais) {

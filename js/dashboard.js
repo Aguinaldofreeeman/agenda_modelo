@@ -71,7 +71,7 @@ const Dashboard = {
         const hoje = App.paraISO(new Date());
         let proxQuery = supabaseClient
             .from('agendamentos')
-            .select('id, data, periodo, status, objetivo, locais(nome, cidade), tarefas(nome), usuarios(nome)')
+            .select('id, data, periodo, status, objetivo, local_outro, locais(nome, cidade), tarefas(nome), usuarios(nome)')
             .gte('data', hoje)
             .order('data', { ascending: true })
             .order('periodo', { ascending: true })
@@ -97,7 +97,7 @@ const Dashboard = {
                             <span>${App.rotuloPeriodos(a.periodo)}</span>
                         </div>
                         <div class="lista-proximas-info">
-                            <strong>${App.escapeHTML(a.locais?.nome || '—')}</strong>
+                            <strong>${App.escapeHTML(App.nomeLocal(a))}</strong>
                             <span>${App.escapeHTML(a.tarefas?.nome || '—')}${isAdm ? ' · ' + App.escapeHTML(a.usuarios?.nome || '—') : ''}</span>
                         </div>
                         ${App.badgeStatus(a.status)}

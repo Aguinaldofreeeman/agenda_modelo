@@ -78,7 +78,7 @@ const Agenda = {
 
         let query = supabaseClient
             .from('agendamentos')
-            .select('id, data, periodo, status, objetivo, resumo, local_id, tarefa_id, usuario_id, locais(nome, cidade), tarefas(nome), usuarios(nome)')
+            .select('id, data, periodo, status, objetivo, resumo, local_id, local_outro, tarefa_id, usuario_id, locais(nome, cidade), tarefas(nome), usuarios(nome)')
             .order('data', { ascending: false })
             .order('periodo', { ascending: true });
 
@@ -120,7 +120,7 @@ const Agenda = {
                             <tr data-id="${a.id}" class="linha-clicavel">
                                 <td>${App.formatarData(a.data)}</td>
                                 <td>${App.rotuloPeriodos(a.periodo)}</td>
-                                <td>${App.escapeHTML(a.locais?.nome || '—')}</td>
+                                <td>${App.escapeHTML(App.nomeLocal(a))}</td>
                                 <td>${App.escapeHTML(a.tarefas?.nome || '—')}</td>
                                 ${App.state.isAdm ? `<td>${App.escapeHTML(a.usuarios?.nome || '—')}</td>` : ''}
                                 <td>${App.badgeStatus(a.status)}</td>
@@ -158,6 +158,21 @@ const Agenda = {
         form.addEventListener('submit', Agenda.salvar);
         document.getElementById('ag-cancelar').addEventListener('click', () => App.fecharModal('modal-agendamento'));
 
+        // Local "Outros": abre o campo para o usuário digitar o local da visita
+        const localSelect = document.getElementById('ag-local');
+        if (localSelect) {
+            localSelect.addEventListener('change', () => Agenda.atualizarCampoLocalOutro(true));
+        }
+
+        // Limpa o erro do local digitado assim que o usuário começa a escrever
+        const inputLocalOutro = document.getElementById('ag-local-outro');
+        if (inputLocalOutro) {
+            inputLocalOutro.addEventListener('input', () => {
+                const erro = document.getElementById('ag-local-outro-erro');
+                if (erro) erro.hidden = true;
+            });
+        }
+
         const btnExcluir = document.getElementById('ag-excluir');
         if (btnExcluir) btnExcluir.addEventListener('click', Agenda.excluir);
 
@@ -180,6 +195,46 @@ const Agenda = {
         } else {
             resumoLabel.textContent = 'Resumo da visita (opcional)';
             resumo.required = false;
+        }
+    },
+
+    // Local escolhido no formulário (objeto de App.state.locais)
+    localSelecionado() {
+        const select = document.getElementById('ag-local');
+        if (!select) return null;
+
+        const achado = App.state.locais.find(l => String(l.id) === String(select.value));
+        if (achado) return achado;
+
+        // Fallback: usa o texto da option selecionada (caso o local não esteja
+        // mais na lista carregada, por exemplo se tiver sido desativado)
+        const option = select.options?.[select.selectedIndex];
+        if (option && option.value) return { id: option.value, nome: option.text };
+
+        return null;
+    },
+
+    // Mostra/oculta o campo de texto do local quando o local escolhido é "Outros".
+    // Enquanto oculto, o campo fica desabilitado e sem valor: o Chrome valida
+    // campos com display:none e bloquearia o envio do formulário.
+    atualizarCampoLocalOutro(podeEditar = true) {
+        const campo = document.getElementById('ag-local-outro-campo');
+        const input = document.getElementById('ag-local-outro');
+        const erro = document.getElementById('ag-local-outro-erro');
+        if (!campo || !input) return;
+
+        const isOutros = App.ehLocalOutros(Agenda.localSelecionado());
+
+        campo.hidden = !isOutros;
+        if (erro) erro.hidden = true;
+
+        if (!isOutros) {
+            input.value = '';
+            input.required = false;
+            input.disabled = true;
+        } else {
+            input.required = true;
+            input.disabled = !podeEditar;
         }
     },
 
@@ -235,6 +290,7 @@ const Agenda = {
 
         if (registro) {
             setVal('ag-local', registro.local_id);
+            setVal('ag-local-outro', registro.local_outro || '');
             setVal('ag-data', registro.data);
             Agenda.marcarPeriodos(registro.periodo);
             setVal('ag-tarefa', registro.tarefa_id);
@@ -252,6 +308,9 @@ const Agenda = {
         document.querySelectorAll('#form-agendamento [data-somente-leitura]').forEach(el => el.disabled = !podeEditar);
         setHidden('ag-salvar', !podeEditar);
         setHidden('ag-excluir', !id || !podeEditar);
+
+        // Depois do bloco acima, para respeitar o modo somente leitura
+        Agenda.atualizarCampoLocalOutro(podeEditar);
 
         App.abrirModal('modal-agendamento');
     },
@@ -274,12 +333,24 @@ const Agenda = {
             return;
         }
 
+        // Local "Outros": o local real da visita é digitado no campo de texto
+        const isOutros = App.ehLocalOutros(Agenda.localSelecionado());
+        const localOutro = App.limparTexto(document.getElementById('ag-local-outro')?.value);
+        if (isOutros && !localOutro) {
+            const erroEl = document.getElementById('ag-local-outro-erro');
+            if (erroEl) erroEl.hidden = false;
+            const input = document.getElementById('ag-local-outro');
+            if (input) input.focus();
+            return;
+        }
+
         const btn = document.getElementById('ag-salvar');
         btn.disabled = true;
         btn.textContent = 'Salvando...';
 
         const payload = {
             local_id: Number(document.getElementById('ag-local').value),
+            local_outro: isOutros ? localOutro : null,
             data: document.getElementById('ag-data').value,
             periodo: periodos,
             tarefa_id: Number(document.getElementById('ag-tarefa').value),

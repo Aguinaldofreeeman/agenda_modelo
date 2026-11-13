@@ -32,7 +32,7 @@ const Indicadores = {
         const isAdm = App.state.isAdm;
         let query = supabaseClient
             .from('agendamentos')
-            .select('data, status, usuario_id, local_id, tarefa_id, locais(nome), tarefas(nome), usuarios(nome, funcao_id)');
+            .select('data, status, usuario_id, local_id, local_outro, tarefa_id, locais(nome), tarefas(nome), usuarios(nome, funcao_id)');
         if (!isAdm) query = query.eq('usuario_id', App.state.perfil.id);
 
         const inicio = document.getElementById('ind-inicio').value;
@@ -87,7 +87,7 @@ const Indicadores = {
         }))));
 
         // Por localidade
-        paineis.push(Indicadores.painelAgrupado('Visitas por localidade', registros, r => r.locais?.nome || '—'));
+        paineis.push(Indicadores.painelAgrupado('Visitas por localidade', registros, r => App.nomeLocal(r)));
 
         // Por tarefa
         paineis.push(Indicadores.painelAgrupado('Visitas por tarefa', registros, r => r.tarefas?.nome || '—'));

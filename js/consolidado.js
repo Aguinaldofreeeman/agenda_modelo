@@ -162,7 +162,7 @@ const Consolidado = {
 
         let query = supabaseClient
             .from('agendamentos')
-            .select('id, data, periodo, status, objetivo, resumo, local_id, usuario_id, tarefa_id, locais(nome, cidade), tarefas(nome)')
+            .select('id, data, periodo, status, objetivo, resumo, local_id, local_outro, usuario_id, tarefa_id, locais(nome, cidade), tarefas(nome)')
             .gte('data', inicioISO)
             .lte('data', fimISO);
 
@@ -261,7 +261,7 @@ const Consolidado = {
                     <span class="celula-periodo-label">${App.periodoLabel[p]}</span>
                     ${doDia[p].map(a => `
                         <button type="button" class="compromisso compromisso-${a.status}" data-agendamento="${a.id}">
-                            ${App.escapeHTML(a.usuarios?.nome || '—')} — ${App.escapeHTML(a.tarefas?.nome || '—')}
+                            ${App.escapeHTML(a.usuarios?.nome || '—')} — ${App.escapeHTML(a.tarefas?.nome || '—')}${a.local_outro ? ` · ${App.escapeHTML(a.local_outro)}` : ''}
                         </button>
                     `).join('')}
                 </div>
