@@ -114,20 +114,24 @@ const Indicadores = {
         });
         const itens = Object.entries(contagem)
             .sort((a, b) => b[1] - a[1])
-            .slice(0, 10)
             .map(([label, valor]) => ({ label, valor, classe: 'barra-neutra' }));
-        return Indicadores.painelBarras(titulo, itens);
+        return Indicadores.painelBarras(titulo, itens, { rolavel: true });
     },
 
-    painelBarras(titulo, itens) {
+    painelBarras(titulo, itens, opcoes = {}) {
         if (itens.length === 0) {
             return `<div class="painel"><h2>${titulo}</h2><p class="vazio">Sem dados no período.</p></div>`;
         }
         const max = Math.max(...itens.map(i => i.valor), 1);
+        const rolavel = opcoes.rolavel === true;
+        const classeBarras = rolavel ? 'barras barras-rolavel' : 'barras';
+        const attrsRolavel = rolavel
+            ? ` tabindex="0" role="region" aria-label="${App.escapeHTML(titulo)}"`
+            : '';
         return `
             <div class="painel">
                 <h2>${titulo}</h2>
-                <div class="barras">
+                <div class="${classeBarras}"${attrsRolavel}>
                     ${itens.map(i => `
                         <div class="barra-linha">
                             <span class="barra-rotulo">${App.escapeHTML(i.label)}</span>

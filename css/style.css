@@ -494,6 +494,29 @@ textarea { resize: vertical; min-height: 80px; }
    ============================================================ */
 
 .barras { display: flex; flex-direction: column; gap: 10px; }
+
+/* Listas longas (ex.: Visitas por localidade) rolam dentro do painel
+   em vez de esticar o card, com uma barra lateral de rolagem. */
+.barras-rolavel {
+    max-height: 320px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 8px;
+}
+.barras-rolavel:focus-visible {
+    outline: 2px solid var(--cor-primaria-clara);
+    outline-offset: 2px;
+    border-radius: var(--raio-pequeno);
+}
+.barras-rolavel::-webkit-scrollbar { width: 8px; }
+.barras-rolavel::-webkit-scrollbar-track { background: #EEF2F1; border-radius: 999px; }
+.barras-rolavel::-webkit-scrollbar-thumb { background: #C7D2CF; border-radius: 999px; }
+.barras-rolavel::-webkit-scrollbar-thumb:hover { background: var(--cor-primaria-clara); }
+/* Firefox (não aceita os pseudo-elementos acima) */
+@supports not selector(::-webkit-scrollbar) {
+    .barras-rolavel { scrollbar-width: thin; scrollbar-color: #C7D2CF #EEF2F1; }
+}
+
 .barra-linha { display: grid; grid-template-columns: 120px 1fr 32px; align-items: center; gap: 10px; }
 .barra-rotulo { font-size: 12.5px; color: var(--cor-texto-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .barra-trilho { background: #EEF0EF; border-radius: 999px; height: 10px; overflow: hidden; }
